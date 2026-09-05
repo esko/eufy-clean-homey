@@ -71,12 +71,19 @@ button:hover:not(:disabled) {
   filter: brightness(0.94);
 }
 button:focus,
-button:focus-visible {
-  outline: none;
-}
+button:focus-visible,
+select:focus,
 select:focus-visible {
-  outline: 3px solid #47afa0;
-  outline-offset: 2px;
+  outline: none !important;
+  box-shadow: none !important;
+}
+button,
+select {
+  -webkit-tap-highlight-color: transparent;
+}
+button {
+  appearance: none;
+  -webkit-appearance: none;
 }
 button:disabled,
 select:disabled {

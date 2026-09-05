@@ -9,7 +9,6 @@ interface HomeyWidget {
   getSettings(): { device?: { id: string } };
   api(method: string, path: string, body?: unknown): Promise<any>;
   on(event: string, handler: (data: unknown) => void): void;
-  hapticFeedback?(): void;
 }
 export function init(homey: HomeyWidget): void {
   const el = <T extends HTMLElement = HTMLElement>(id: string) =>
@@ -46,7 +45,6 @@ export function init(homey: HomeyWidget): void {
         action,
         args,
       });
-      homey.hapticFeedback?.();
       message("Command sent. Waiting for the vacuum to report its state.");
     } catch (e) {
       message(e instanceof Error ? e.message : "Command failed", true);
