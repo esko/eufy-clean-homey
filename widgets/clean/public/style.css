@@ -24,10 +24,23 @@ body {
 }
 main {
   height: 650px;
+  display: flex;
+  flex-direction: column;
   padding: 20px;
   border-radius: 24px;
   background: var(--bg);
-  overflow: auto;
+  overflow: hidden;
+}
+main > :not(.panel) {
+  flex-shrink: 0;
+}
+.panel {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-bottom: 8px;
+  scrollbar-width: thin;
 }
 h2 {
   font-size: 14px;
@@ -71,7 +84,7 @@ select:disabled {
   display: flex;
   position: relative;
   height: 190px;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
 }
 .hero img {
