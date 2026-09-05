@@ -25,6 +25,7 @@ export class VacuumClient extends EventEmitter {
   };
   map: FloorMap | null = null;
   connected = false;
+  private reportedSuction: number | null = null;
   private mqtt?: MqttClient;
   private cloud?: EufyCloud;
   private credentials?: MqttCredentials;
@@ -170,6 +171,20 @@ export class VacuumClient extends EventEmitter {
           s.battery = value;
           changed = true;
         }
+        if (
+          key === "158" &&
+          typeof value === "number" &&
+          Number.isInteger(value) &&
+          value >= 0 &&
+          value <= 4
+        ) {
+          this.reportedSuction = value;
+          s.parameters = {
+            ...(s.parameters || { water: null, mode: null, intensity: null }),
+            suction: value,
+          };
+          changed = true;
+        }
         if (typeof value !== "string" || !value) continue;
         if (key === "153") {
           const w = decode("WorkStatus", value),
@@ -203,7 +218,9 @@ export class VacuumClient extends EventEmitter {
             param = p.runningCleanParam || p.cleanParam;
           if (param) {
             s.parameters = {
-              suction: param.fan ? param.fan.suction || 0 : null,
+              suction:
+                this.reportedSuction ??
+                (param.fan ? param.fan.suction || 0 : null),
               water: param.mopMode ? param.mopMode.level || 0 : null,
               mode: param.cleanType ? param.cleanType.value || 0 : null,
               intensity: param.cleanExtent

@@ -21,7 +21,8 @@ test("commands preserve explicit zero enums", () => {
     { parameters: { suction: 3, water: 2, mode: 2, intensity: 0 } },
   );
   const p = decode("CleanParamRequest", data["154"] as string);
-  assert.equal(p.cleanParam.fan.suction, 0);
+  assert.equal(data["158"], 0);
+  assert.equal(p.cleanParam.fan, undefined);
   assert.equal(p.cleanParam.mopMode.level, 0);
   assert.equal(p.cleanParam.cleanType, undefined);
 });
@@ -70,6 +71,27 @@ const client = () =>
     { id: "TEST-DEVICE", name: "Test vacuum", model: "T2280", dps: {} },
     { username: "test@example.invalid", password: "not-a-password" },
   );
+test("C20 suction uses dedicated datapoint and reported speed survives stale parameter frames", () => {
+  const c = client();
+  c.ingest({
+    "154": encode("CleanParamResponse", {
+      cleanParam: { fan: { suction: 0 }, cleanExtent: { value: 1 } },
+    }),
+  });
+  const data = command("settings", { suction: 1 }, c.state);
+  assert.deepEqual(data, { "158": 1 });
+  c.ingest({ "158": 1 });
+  assert.equal(c.state.parameters?.suction, 1);
+  c.ingest({
+    "154": encode("CleanParamResponse", {
+      cleanParam: { fan: { suction: 0 }, cleanExtent: { value: 2 } },
+    }),
+  });
+  assert.equal(c.state.parameters?.suction, 1);
+  assert.equal(c.state.parameters?.intensity, 2);
+  c.ingest({ "158": 0 });
+  assert.equal(c.state.parameters?.suction, 0);
+});
 test("battery values are percentages, including zero, not fractions", () => {
   const c = client();
   assert.equal(c.state.battery, null);

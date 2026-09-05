@@ -45,7 +45,29 @@ export function init(homey: HomeyWidget): void {
         action,
         args,
       });
-      message("Command sent. Waiting for the vacuum to report its state.");
+      if (action === "settings") {
+        message("Waiting for the vacuum to confirm the setting…");
+        let confirmed = false;
+        for (let attempt = 0; attempt < 16; attempt++) {
+          const reported: VacuumSnapshot = await homey.api(
+            "GET",
+            `/state?id=${encodeURIComponent(id!)}`,
+          );
+          snapshot = reported;
+          render();
+          if (settingsMatch(reported, args)) {
+            confirmed = true;
+            break;
+          }
+          await new Promise((resolve) => setTimeout(resolve, 750));
+        }
+        if (!confirmed)
+          throw new Error(
+            "Vacuum has not confirmed this setting. Showing its last reported value.",
+          );
+        message("Setting confirmed by vacuum.");
+      } else
+        message("Command sent. Waiting for the vacuum to report its state.");
     } catch (e) {
       message(e instanceof Error ? e.message : "Command failed", true);
     } finally {
@@ -60,7 +82,9 @@ export function init(homey: HomeyWidget): void {
     el("app").setAttribute("aria-busy", "false");
     el("activity").textContent = !s.connected
       ? "Reconnecting…"
-      : s.stale ? `${s.activity} · Outdated` : s.activity;
+      : s.stale
+        ? `${s.activity} · Outdated`
+        : s.activity;
     el("battery").textContent = s.battery === null ? "—" : String(s.battery);
     el("battery").parentElement!.classList.toggle(
       "low",
@@ -104,12 +128,7 @@ export function init(homey: HomeyWidget): void {
         const value = s.parameters?.[key];
         select.disabled =
           !s.connected || pending || value === undefined || value === null;
-        if (
-          value !== undefined &&
-          value !== null &&
-          document.activeElement !== select
-        )
-          select.value = String(value);
+        if (value !== undefined && value !== null) select.value = String(value);
       });
     for (const r of [...selected])
       if (!s.rooms.some((room) => room.id === r)) selected.delete(r);
@@ -306,4 +325,17 @@ export function init(homey: HomeyWidget): void {
   window.addEventListener("pagehide", () => clearInterval(timer), {
     once: true,
   });
+}
+
+export function settingsMatch(
+  state: VacuumSnapshot,
+  args: ActionArgs,
+): boolean {
+  const keys = ["suction", "water", "mode", "intensity"] as const;
+  const requested = keys.filter((key) => args[key] !== undefined);
+  return (
+    state.connected &&
+    requested.length > 0 &&
+    requested.every((key) => state.parameters?.[key] === args[key])
+  );
 }

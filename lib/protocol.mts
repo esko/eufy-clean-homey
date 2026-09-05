@@ -171,7 +171,7 @@ export function command(
   action: Action,
   args: ActionArgs = {},
   state: Partial<VacuumState> = {},
-): Record<string, string | boolean> {
+): Record<string, string | boolean | number> {
   if (action in COMMANDS) {
     const request: ProtoMessage = {
       method: COMMANDS[action as keyof typeof COMMANDS],
@@ -213,6 +213,7 @@ export function command(
         "Cleaning settings have not been reported by this vacuum",
       );
     const param: ProtoMessage = {};
+    const data: Record<string, string | number> = {};
     for (const [key, field, sub, max] of [
       ["suction", "fan", "suction", 4],
       ["water", "mopMode", "level", 2],
@@ -228,16 +229,18 @@ export function command(
         value > max
       )
         throw new Error(`Invalid ${key}`);
-      param[field] = { [sub]: value };
+      // C20 uses the dedicated fan-speed datapoint, not CleanParam.fan.
+      if (key === "suction") data["158"] = value;
+      else param[field] = { [sub]: value };
     }
-    if (!Object.keys(param).length)
+    if (!Object.keys(param).length && !Object.keys(data).length)
       throw new Error("No cleaning settings selected");
-    return {
-      "154": encode("CleanParamRequest", {
+    if (Object.keys(param).length)
+      data["154"] = encode("CleanParamRequest", {
         cleanParam: param,
         areaCleanParam: param,
-      }),
-    };
+      });
+    return data;
   }
   const dock: Record<string, [string, boolean]> = {
     wash: ["goSelfcleaning", true],
