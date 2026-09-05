@@ -131,11 +131,14 @@ export class VacuumClient extends EventEmitter {
       client.once("error", fail);
       client.once("connect", () =>
         client.subscribe(
-          [res, biz, `smart/mb/in/${this.device.id}`],
+          // T2280 uses the novel protocol. Its broker rejects the legacy
+          // smart/mb/in channel even when status and map subscriptions succeed.
+          [res, biz],
           { qos: 1 },
           (error) => {
             cleanup();
             if (error) {
+              client.end(true);
               reject(new Error("Eufy MQTT subscription failed"));
               return;
             }
