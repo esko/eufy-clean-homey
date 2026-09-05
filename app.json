@@ -1,0 +1,235 @@
+{
+  "id": "com.esko.eufyclean",
+  "version": "0.1.0",
+  "compatibility": ">=12.3.0",
+  "sdk": 3,
+  "runtime": "nodejs",
+  "platforms": ["local"],
+  "name": { "en": "Eufy Clean Studio" },
+  "description": { "en": "A clearer view of your clean home" },
+  "brandColor": "#167A78",
+  "category": ["appliances"],
+  "tags": { "en": ["vacuum", "mop", "eufy", "maps", "Omni C20"] },
+  "author": { "name": "Esko Pyy-Luoma" },
+  "contributors": {
+    "developers": [
+      { "name": "Martijn Poppen (protocol research)" },
+      {
+        "name": "jeppesens/eufy-clean contributors (map and feature reference)"
+      }
+    ]
+  },
+  "source": "https://github.com/esko/eufy-clean-homey",
+  "bugs": { "url": "https://github.com/esko/eufy-clean-homey/issues" },
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png",
+    "xlarge": "/assets/images/xlarge.png"
+  },
+  "permissions": [],
+  "drivers": [
+    {
+      "id": "omni",
+      "name": { "en": "Omni C20" },
+      "class": "vacuumcleaner",
+      "connectivity": ["cloud"],
+      "images": {
+        "small": "/drivers/omni/assets/images/small.png",
+        "large": "/drivers/omni/assets/images/large.png"
+      },
+      "capabilities": [
+        "vacuumcleaner_state",
+        "measure_battery",
+        "alarm_battery",
+        "clean_status",
+        "clean_warning",
+        "clean_area",
+        "clean_duration",
+        "clean_suction"
+      ],
+      "capabilitiesOptions": { "measure_battery": { "decimals": 0 } },
+      "energy": { "batteries": ["INTERNAL"] },
+      "pair": [
+        {
+          "id": "login_credentials",
+          "template": "login_credentials",
+          "options": {
+            "title": { "en": "Sign in to Eufy" },
+            "usernameLabel": { "en": "Email" },
+            "passwordLabel": { "en": "Password" }
+          }
+        },
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "navigation": { "next": "add_devices" }
+        },
+        { "id": "add_devices", "template": "add_devices" }
+      ],
+      "repair": [
+        {
+          "id": "login_credentials",
+          "template": "login_credentials",
+          "options": { "title": { "en": "Reconnect your Eufy account" } }
+        }
+      ],
+      "settings": [
+        {
+          "id": "email",
+          "type": "text",
+          "label": { "en": "Account email" },
+          "value": "",
+          "hint": {
+            "en": "Use Repair to change the account email and password together."
+          }
+        }
+      ]
+    }
+  ],
+  "capabilities": {
+    "clean_status": {
+      "type": "string",
+      "title": { "en": "Activity" },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor"
+    },
+    "clean_warning": {
+      "type": "string",
+      "title": { "en": "Warnings" },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor"
+    },
+    "clean_area": {
+      "type": "number",
+      "title": { "en": "Last cleaning area" },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "units": { "en": "m²" },
+      "decimals": 0,
+      "insights": true
+    },
+    "clean_duration": {
+      "type": "number",
+      "title": { "en": "Last cleaning duration" },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "units": { "en": "min" },
+      "decimals": 0
+    },
+    "clean_suction": {
+      "type": "enum",
+      "title": { "en": "Suction" },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "picker",
+      "values": [
+        { "id": "0", "title": { "en": "Quiet" } },
+        { "id": "1", "title": { "en": "Standard" } },
+        { "id": "2", "title": { "en": "Turbo" } },
+        { "id": "3", "title": { "en": "Max" } },
+        { "id": "4", "title": { "en": "Max+" } }
+      ]
+    }
+  },
+  "widgets": {
+    "clean": {
+      "id": "clean",
+      "name": { "en": "Vacuum overview" },
+      "height": 650,
+      "transparent": true,
+      "settings": [
+        { "id": "device", "type": "autocomplete", "title": { "en": "Vacuum" } }
+      ],
+      "api": {
+        "getState": { "method": "GET", "path": "/state" },
+        "action": { "method": "POST", "path": "/action" }
+      }
+    }
+  },
+  "flow": {
+    "actions": [
+      {
+        "id": "pause",
+        "title": { "en": "Pause cleaning" },
+        "args": [
+          { "name": "device", "type": "device", "filter": "driver_id=omni" }
+        ]
+      },
+      {
+        "id": "resume",
+        "title": { "en": "Resume cleaning" },
+        "args": [
+          { "name": "device", "type": "device", "filter": "driver_id=omni" }
+        ]
+      },
+      {
+        "id": "dock",
+        "title": { "en": "Return to dock" },
+        "args": [
+          { "name": "device", "type": "device", "filter": "driver_id=omni" }
+        ]
+      },
+      {
+        "id": "locate",
+        "title": { "en": "Find the vacuum" },
+        "args": [
+          { "name": "device", "type": "device", "filter": "driver_id=omni" }
+        ]
+      },
+      {
+        "id": "wash",
+        "title": { "en": "Wash the mop" },
+        "args": [
+          { "name": "device", "type": "device", "filter": "driver_id=omni" }
+        ]
+      },
+      {
+        "id": "dry",
+        "title": { "en": "Dry the mop" },
+        "args": [
+          { "name": "device", "type": "device", "filter": "driver_id=omni" }
+        ]
+      },
+      {
+        "id": "stopDry",
+        "title": { "en": "Stop drying the mop" },
+        "args": [
+          { "name": "device", "type": "device", "filter": "driver_id=omni" }
+        ]
+      },
+      {
+        "id": "empty",
+        "title": { "en": "Empty the dust bin" },
+        "args": [
+          { "name": "device", "type": "device", "filter": "driver_id=omni" }
+        ]
+      },
+      {
+        "id": "scene",
+        "title": { "en": "Run a cleaning scene" },
+        "titleFormatted": { "en": "Run [[scene]]" },
+        "args": [
+          { "name": "device", "type": "device", "filter": "driver_id=omni" },
+          {
+            "name": "scene",
+            "type": "autocomplete",
+            "title": { "en": "Scene" }
+          }
+        ]
+      },
+      {
+        "id": "room",
+        "title": { "en": "Clean a room" },
+        "titleFormatted": { "en": "Clean [[room]]" },
+        "args": [
+          { "name": "device", "type": "device", "filter": "driver_id=omni" },
+          { "name": "room", "type": "autocomplete", "title": { "en": "Room" } }
+        ]
+      }
+    ]
+  }
+}

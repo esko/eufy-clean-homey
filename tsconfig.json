@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "outDir": ".homeybuild",
+    "rootDir": ".",
+    "strict": true,
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "lib": ["ES2022", "DOM"]
+  },
+  "include": [
+    "app.mts",
+    "lib/**/*.mts",
+    "drivers/**/*.mts",
+    "widgets/**/*.mts"
+  ],
+  "exclude": ["node_modules", ".homeybuild", "tests"]
+}

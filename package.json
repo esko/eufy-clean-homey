@@ -1,0 +1,24 @@
+{
+  "name": "com.esko.eufyclean",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "check": "tsc --noEmit",
+    "test": "tsx --test tests/*.test.mts",
+    "assets": "node scripts/assets.mjs"
+  },
+  "dependencies": {
+    "mqtt": "^5.14.1",
+    "protobufjs": "^7.5.4"
+  },
+  "devDependencies": {
+    "@types/homey": "npm:homey-apps-sdk-v3-types@latest",
+    "@types/node": "^22.0.0",
+    "sharp": "^0.35.4",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0"
+  }
+}

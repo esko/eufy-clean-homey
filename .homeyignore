@@ -1,0 +1,7 @@
+.git/
+.github/
+.private/
+tests/
+scripts/
+docs/
+node_modules/sharp/
