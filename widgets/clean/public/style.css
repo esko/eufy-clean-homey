@@ -70,7 +70,10 @@ select {
 button:hover:not(:disabled) {
   filter: brightness(0.94);
 }
-button:focus-visible,
+button:focus,
+button:focus-visible {
+  outline: none;
+}
 select:focus-visible {
   outline: 3px solid #47afa0;
   outline-offset: 2px;
@@ -149,6 +152,10 @@ small {
   background: var(--accent);
   color: #fff;
   font-weight: 650;
+}
+button[data-action="locate"] {
+  display: block;
+  width: 100%;
 }
 #warning {
   font-size: 11px;
