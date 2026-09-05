@@ -60,10 +60,9 @@ export function init(homey: HomeyWidget): void {
     const s = snapshot;
     if (!s) return;
     el("app").setAttribute("aria-busy", "false");
-    el("name").textContent = s.name;
-    el("connection").textContent =
-      `${s.connected ? "Connected" : "Reconnecting"}${s.stale ? " · Status may be outdated" : ""}${s.updatedAt ? " · " + new Date(s.updatedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : ""}`;
-    el("activity").textContent = s.activity;
+    el("activity").textContent = !s.connected
+      ? "Reconnecting…"
+      : s.stale ? `${s.activity} · Outdated` : s.activity;
     el("battery").textContent = s.battery === null ? "—" : String(s.battery);
     el("battery").parentElement!.classList.toggle(
       "low",
@@ -256,7 +255,6 @@ export function init(homey: HomeyWidget): void {
     }
     ctx.restore();
   }
-  el("refresh").onclick = () => void refresh();
   el("primary").onclick = () =>
     void act(
       snapshot?.activity === "cleaning"
